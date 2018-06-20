@@ -16,13 +16,13 @@ func main() {
 	var number int
 
 	minus.AddEventListener("click", func(args []js.Value) {
-		println("press -")
+		webapi.Console.Log("press -")
 		number--
 		span.SetInnerHTML(strconv.Itoa(number))
 	})
 
 	plus.AddEventListener("click", func(args []js.Value) {
-		println("press +")
+		webapi.Console.Log("press +")
 		number++
 		span.SetInnerHTML(strconv.Itoa(number))
 	})
