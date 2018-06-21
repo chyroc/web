@@ -5,16 +5,30 @@ package webapi
 import "syscall/js"
 
 // https://developer.mozilla.org/en-US/docs/Web/API/element
-type Element struct {
+type Element interface {
 	EventTarget
+
+	// innerHTML
+	SetInnerHTML(s string)
+	InnerHTML() string
+
+	SetAttribute(name string, value interface{})
+}
+
+type implElement struct {
+	implEventTarget
 
 	v js.Value
 }
 
-func (r *Element) SetInnerHTML(s string) {
+func (r *implElement) SetInnerHTML(s string) {
 	r.v.Set("innerHTML", s)
 }
 
-func (r *Element) SetAttribute(name string, value interface{}) {
+func (r *implElement) InnerHTML() string {
+	return r.v.Get("innerHTML").String()
+}
+
+func (r *implElement) SetAttribute(name string, value interface{}) {
 	r.v.Set(name, value)
 }

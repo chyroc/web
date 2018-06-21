@@ -13,3 +13,5 @@
 examples/pure-wasm/example.wasm
 examples/webapi/example.wasm
 .idea/
+test.html
+vendor/

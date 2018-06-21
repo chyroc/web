@@ -18,11 +18,15 @@ type document struct {
 	EventTarget
 }
 
-func (r *document) GetElementById(id string) *Element {
+func (r *document) GetElementById(id string) HTMLElement {
 	ele := doc.Call("getElementById", id)
-	eventTarget := EventTarget{v: ele}
-	return &Element{
-		EventTarget: eventTarget,
-		v:           ele,
+
+	return &implHTMLElement{
+		implElement: implElement{
+			implEventTarget: implEventTarget{
+				v: ele,
+			},
+			v: ele,
+		},
 	}
 }
