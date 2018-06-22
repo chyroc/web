@@ -39,7 +39,7 @@ func main() {
 		typeName = "float64"
 	}
 	t := `
-
+// {{ .property }}
 {{ .property_upper }}() {{ .type }}
 Set{{ .property_upper }}(s {{ .type }})
 
