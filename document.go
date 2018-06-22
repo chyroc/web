@@ -10,10 +10,11 @@ import (
 var Document *document
 
 func init() {
-	Document = new(document)
 	v := js.Global.Get("document")
-	Document.v = v
-	Document.implEventTarget.v = v
+	Document = &document{
+		implEventTarget: newImplEventTarget(v),
+		v:               v,
+	}
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Document
@@ -24,31 +25,18 @@ type document struct {
 }
 
 func (r *document) Location() Location {
-	return &implLocation{
-		v: r.v.Get("location"),
-	}
+	t := newImplLocation(r.v.Get("location"))
+	return &t
 }
 
 func (r *document) GetElementById(id string) HTMLElement {
-	ele := r.v.Call("getElementById", id)
+	v := r.v.Call("getElementById", id)
 
-	tagName := strings.ToUpper(ele.Get("tagName").String())
-
-	implHTMLElement := implHTMLElement{
-		implElement: implElement{
-			implEventTarget: implEventTarget{
-				v: ele,
-			},
-			v: ele,
-		},
-	}
-
-	switch tagName {
+	switch tagName := strings.ToUpper(v.Get("tagName").String()); tagName {
 	case "CANVAS":
-		return &implHTMLCanvasElement{
-			implHTMLElement: implHTMLElement,
-		}
+		return newHTMLCanvasElement(v)
 	default:
-		return &implHTMLElement
+		t := newImplHTMLElement(v)
+		return &t
 	}
 }

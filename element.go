@@ -21,6 +21,13 @@ type implElement struct {
 	v js.Value
 }
 
+func newImplElement(v js.Value) implElement {
+	return implElement{
+		implEventTarget: newImplEventTarget(v),
+		v:               v,
+	}
+}
+
 func (r *implElement) SetInnerHTML(s string) {
 	r.v.Set("innerHTML", s)
 }

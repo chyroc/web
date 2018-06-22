@@ -15,6 +15,12 @@ type implEventTarget struct {
 	v js.Value
 }
 
+func newImplEventTarget(v js.Value) implEventTarget {
+	return implEventTarget{
+		v: v,
+	}
+}
+
 func (r *implEventTarget) AddEventListener(typ string, listener func(args []js.Value)) {
 	r.v.Call("addEventListener", typ, js.NewCallback(listener))
 }

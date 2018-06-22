@@ -3,8 +3,8 @@
 package webapi
 
 import (
-	"syscall/js"
 	"fmt"
+	"syscall/js"
 )
 
 var Console *console

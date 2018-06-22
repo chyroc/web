@@ -2,6 +2,11 @@
 
 package webapi
 
+import (
+	"fmt"
+	"syscall/js"
+)
+
 type HTMLCanvasElement interface {
 	HTMLElement
 
@@ -14,10 +19,18 @@ type implHTMLCanvasElement struct {
 	implHTMLElement
 }
 
+func newHTMLCanvasElement(v js.Value) HTMLCanvasElement {
+	return &implHTMLCanvasElement{
+		implHTMLElement: newImplHTMLElement(v),
+	}
+}
+
 func (r *implHTMLCanvasElement) GetContext(contextID string) CanvasRenderingContext2D {
-	v := r.v.Call("getContext", contextID)
-	return &implCanvasRenderingContext2D{
-		v: v,
+	switch contextID {
+	case "2d":
+		return newCanvasRenderingContext2D(r.v, r.v.Call("getContext", contextID))
+	default:
+		panic(fmt.Sprintf("unsupport %s contextId", contextID))
 	}
 }
 

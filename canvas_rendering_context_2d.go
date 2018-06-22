@@ -10,6 +10,8 @@ type CanvasRenderingContext2D interface {
 	SetFillStyle(string)
 	// font
 	SetFont(string)
+	//
+	Canvas() HTMLCanvasElement
 
 	BeginPath()
 	Rect(x, y float64, width, height int)
@@ -23,7 +25,15 @@ type CanvasRenderingContext2D interface {
 }
 
 type implCanvasRenderingContext2D struct {
-	v js.Value
+	parent js.Value
+	v      js.Value
+}
+
+func newCanvasRenderingContext2D(parent, v js.Value) CanvasRenderingContext2D {
+	return &implCanvasRenderingContext2D{
+		parent: parent,
+		v:      v,
+	}
 }
 
 func (r *implCanvasRenderingContext2D) FillStyle() string {
@@ -36,6 +46,10 @@ func (r *implCanvasRenderingContext2D) SetFillStyle(s string) {
 
 func (r *implCanvasRenderingContext2D) SetFont(s string) {
 	r.v.Set("front", s)
+}
+
+func (r *implCanvasRenderingContext2D) Canvas() HTMLCanvasElement {
+	return newHTMLCanvasElement(r.parent)
 }
 
 func (r *implCanvasRenderingContext2D) BeginPath() {
