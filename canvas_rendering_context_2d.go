@@ -2,7 +2,10 @@
 
 package webapi
 
-import "syscall/js"
+import (
+	"syscall/js"
+	"log"
+)
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
 type CanvasRenderingContext2D interface {
@@ -57,15 +60,23 @@ type CanvasRenderingContext2D interface {
 	TextBaseline() string
 	SetTextBaseline(s string)
 
+	Arc(x, y, radius, startAngle, endAngle float64, anticlockwise ...bool)
+	ArcTo(x1, y1, x2, y2, radius float64)
 	BeginPath()
-	Rect(x, y float64, width, height int)
+	BezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y float64)
 	ClearRect(x, y float64, width, height int)
-	Fill()
+	Clip(fillRule ...string)
 	ClosePath()
-	Arc(x, y, radius, startAngle, endAngle float64)
+	CreateImageData(width, height float64) ImageData
+	CreateImageData2(img ImageData) ImageData
+	CreateLinearGradient(x0, y0, x1, y1 float64) CanvasGradient
+
+	Rect(x, y float64, width, height int)
+	Fill()
 	MoveTo(x, y float64)
 	LineTo(x, y float64)
 	FillText(s string, x, y float64)
+	Stroke(path ...string)
 }
 
 type implCanvasRenderingContext2D struct {
@@ -264,32 +275,112 @@ func (r *implCanvasRenderingContext2D) TextBaseline() string {
 	return r.v.Get("textBaseline").String()
 }
 
-func (r *implCanvasRenderingContext2D) SetTextBaseline(s string) {
-	r.v.Set("textBaseline", s)
+// The CanvasRenderingContext2D.arc() method of the Canvas 2D API adds an arc to
+// the path which is centered at (x, y) position with radius r starting at startAngle and ending
+// at endAngle going in the given direction by anticlockwise (defaulting to clockwise).
+//
+// 画圆弧，参数分别是圆心点，半径，开始和结束的弧度，最后一个默认false顺时针，true为逆时针
+func (r *implCanvasRenderingContext2D) Arc(x, y, radius, startAngle, endAngle float64, anticlockwise ...bool) {
+	if len(anticlockwise) > 0 {
+		r.v.Call("arc", x, y, radius, startAngle, endAngle, anticlockwise[0])
+	} else {
+		r.v.Call("arc", x, y, radius, startAngle, endAngle)
+	}
 }
 
+// The CanvasRenderingContext2D.arcTo() method of the Canvas 2D API adds an arc
+// to the path with the given control points and radius.
+//
+// The arc drawn will be a part of a circle, never elliptical. Typical use could be making a
+// rounded corner.
+//
+// One way to think about the arc drawn is to imagine two straight segments, from the
+// starting point (latest point in current path) to the first control point, and then from the
+// first control point to the second control point. These two segments form a sharp corner
+// with the first control point being in the corner. Using arcTo, the corner will instead be an
+// arc with the given radius.
+//
+// The arc is tangential to both segments, which can sometimes produce surprising results,
+// e.g. if the radius given is larger than the distance between the starting point and the first
+// control point.
+//
+// If the radius specified doesn't make the arc meet the starting point (latest point in the
+// current path), the starting point is connected to the arc with a straight line segment.
+func (r *implCanvasRenderingContext2D) ArcTo(x1, y1, x2, y2, radius float64) {
+	r.v.Call("arcTo", x1, y1, x2, y2, radius)
+}
+
+// The CanvasRenderingContext2D.beginPath() method of the Canvas 2D API starts a
+// new path by emptying the list of sub-paths. Call this method when you want to create a
+// new path.
 func (r *implCanvasRenderingContext2D) BeginPath() {
 	r.v.Call("beginPath")
 }
 
-func (r *implCanvasRenderingContext2D) Rect(x, y float64, width, height int) {
-	r.v.Call("rect", x, y, width, height)
+func (r *implCanvasRenderingContext2D) BezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y float64) {
+	r.v.Call("bezierCurveTo", cp1x, cp1y, cp2x, cp2y, x, y)
 }
 
+// The CanvasRenderingContext2D.clearRect() method of the Canvas 2D API sets all
+// pixels in the rectangle defined by starting point (x, y) and size (width, height) to transparent
+// black, erasing any previously drawn content.
 func (r *implCanvasRenderingContext2D) ClearRect(x, y float64, width, height int) {
 	r.v.Call("clearRect", x, y, width, height)
 }
 
-func (r *implCanvasRenderingContext2D) Fill() {
-	r.v.Call("fill")
+// TODO: unsupport path
+func (r *implCanvasRenderingContext2D) Clip(fillRule ...string) {
+	if len(fillRule) > 0 {
+		r.v.Call("clip", fillRule[0])
+	} else {
+		r.v.Call("clip")
+	}
 }
 
 func (r *implCanvasRenderingContext2D) ClosePath() {
 	r.v.Call("closePath")
 }
 
-func (r *implCanvasRenderingContext2D) Arc(x, y, radius, startAngle, endAngle float64) {
-	r.v.Call("arc", x, y, radius, startAngle, endAngle)
+func (r *implCanvasRenderingContext2D) CreateImageData(width, height float64) ImageData {
+	v := r.v.Call("createImageData", width, height)
+	t := newImplImageData(v)
+	return &t
+}
+
+func (r *implCanvasRenderingContext2D) CreateImageData2(img ImageData) ImageData {
+	v, ok := img.(*implImageData)
+	if ok {
+		v := r.v.Call("createImageData", v.v)
+		t := newImplImageData(v)
+		return &t
+	} else {
+		log.Println("ImageData is not implImageData")
+		return img
+	}
+}
+
+func (r *implCanvasRenderingContext2D) CreateLinearGradient(x0, y0, x1, y1 float64) CanvasGradient {
+	v := r.v.Call("createLinearGradient", x0, y0, x1, y1)
+	t := newImplCanvasGradient(v)
+	return &t
+}
+
+func (r *implCanvasRenderingContext2D) createPattern(image CanvasImageSource, repetition string) CanvasPattern {
+	v := r.v.Call("createPattern", image, repetition)
+	t := newImplCanvasPattern(v)
+	return &t
+}
+
+func (r *implCanvasRenderingContext2D) SetTextBaseline(s string) {
+	r.v.Set("textBaseline", s)
+}
+
+func (r *implCanvasRenderingContext2D) Rect(x, y float64, width, height int) {
+	r.v.Call("rect", x, y, width, height)
+}
+
+func (r *implCanvasRenderingContext2D) Fill() {
+	r.v.Call("fill")
 }
 
 func (r *implCanvasRenderingContext2D) MoveTo(x, y float64) {
@@ -302,4 +393,14 @@ func (r *implCanvasRenderingContext2D) LineTo(x, y float64) {
 
 func (r *implCanvasRenderingContext2D) FillText(s string, x, y float64) {
 	r.v.Call("fillText", s, x, y)
+}
+
+// The CanvasRenderingContext2D.stroke() method of the Canvas 2D API strokes the
+// current or given path with the current stroke style using the non-zero winding rule.
+func (r *implCanvasRenderingContext2D) Stroke(path ...string) {
+	if len(path) > 0 {
+		r.v.Call("stroke", path[0])
+	} else {
+		r.v.Call("stroke", )
+	}
 }
