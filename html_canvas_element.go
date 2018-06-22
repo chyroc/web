@@ -26,9 +26,11 @@ func newHTMLCanvasElement(v js.Value) HTMLCanvasElement {
 }
 
 func (r *implHTMLCanvasElement) GetContext(contextID string) CanvasRenderingContext2D {
+	t := newCanvasRenderingContext2D(r.v, r.v.Call("getContext", contextID))
+
 	switch contextID {
 	case "2d":
-		return newCanvasRenderingContext2D(r.v, r.v.Call("getContext", contextID))
+		return &t
 	default:
 		panic(fmt.Sprintf("unsupport %s contextId", contextID))
 	}

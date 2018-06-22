@@ -12,4 +12,6 @@
 *.out
 .idea/
 *.html
+vendor/bin/
+bin/
 vendor/

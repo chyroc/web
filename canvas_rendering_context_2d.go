@@ -4,14 +4,34 @@ package webapi
 
 import "syscall/js"
 
+// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
 type CanvasRenderingContext2D interface {
+	// canvas
+	Canvas() HTMLCanvasElement
 	// fillStyle
 	FillStyle() string
 	SetFillStyle(string)
 	// font
+	Font() string
 	SetFont(string)
-	//
-	Canvas() HTMLCanvasElement
+	// globalAlpha
+	GlobalAlpha() float64
+	SetGlobalAlpha(float64)
+	// globalCompositeOperation
+	GlobalCompositeOperation() string
+	SetGlobalCompositeOperation(s string)
+	// lineCap
+	LineCap() string
+	SetLineCap(s string)
+	// lineDashOffset
+	LineDashOffset() float64
+	SetLineDashOffset(s float64)
+	// lineJoin
+	LineJoin() string
+	SetLineJoin(s string)
+	// lineWidth
+	LineWidth() float64
+	SetLineWidth(s float64)
 
 	BeginPath()
 	Rect(x, y float64, width, height int)
@@ -29,27 +49,108 @@ type implCanvasRenderingContext2D struct {
 	v      js.Value
 }
 
-func newCanvasRenderingContext2D(parent, v js.Value) CanvasRenderingContext2D {
-	return &implCanvasRenderingContext2D{
+func newCanvasRenderingContext2D(parent, v js.Value) implCanvasRenderingContext2D {
+	return implCanvasRenderingContext2D{
 		parent: parent,
 		v:      v,
 	}
+}
+
+func (r *implCanvasRenderingContext2D) Canvas() HTMLCanvasElement {
+	return newHTMLCanvasElement(r.parent)
 }
 
 func (r *implCanvasRenderingContext2D) FillStyle() string {
 	return r.v.Get("fillStyle").String()
 }
 
+// TODO param type: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/fillStyle
 func (r *implCanvasRenderingContext2D) SetFillStyle(s string) {
 	r.v.Set("fillStyle", s)
+}
+
+func (r *implCanvasRenderingContext2D) Font() string {
+	return r.v.Get("front").String()
 }
 
 func (r *implCanvasRenderingContext2D) SetFont(s string) {
 	r.v.Set("front", s)
 }
 
-func (r *implCanvasRenderingContext2D) Canvas() HTMLCanvasElement {
-	return newHTMLCanvasElement(r.parent)
+// The CanvasRenderingContext2D.globalAlpha property of the Canvas 2D API
+// specifies the alpha value that is applied to shapes and images before they are drawn onto
+// the canvas. The value is in the range from 0.0 (fully transparent) to 1.0 (fully opaque).
+// 透明度，范围：0.0 - 1.0
+func (r *implCanvasRenderingContext2D) GlobalAlpha() float64 {
+	return r.v.Get("globalAlpha").Float()
+}
+
+func (r *implCanvasRenderingContext2D) SetGlobalAlpha(s float64) {
+	r.v.Set("globalAlpha", s)
+}
+
+// The CanvasRenderingContext2D.globalCompositeOperation property of the
+// Canvas 2D API sets the type of compositing operation to apply when drawing new shapes,
+// where type is a string identifying which of the compositing or blending mode operations
+// to use.
+// 设置两个图片重合的绘制方式，很多选项
+func (r *implCanvasRenderingContext2D) GlobalCompositeOperation() string {
+	return r.v.Get("globalCompositeOperation").String()
+}
+
+func (r *implCanvasRenderingContext2D) SetGlobalCompositeOperation(s string) {
+	r.v.Set("globalCompositeOperation", s)
+}
+
+// The CanvasRenderingContext2D.lineCap property of the Canvas 2D API determines
+// how the end points of every line are drawn. There are three possible values for
+// this property and those are: butt, round and square. By default this property is set to
+// butt.
+// 设置线的端点的形状：butt（平的）, round（圆） and square（平的，但是多出去一个圆的半径）
+func (r *implCanvasRenderingContext2D) LineCap() string {
+	return r.v.Get("lineCap").String()
+}
+
+func (r *implCanvasRenderingContext2D) SetLineCap(s string) {
+	r.v.Set("lineCap", s)
+}
+
+// The CanvasRenderingContext2D.lineDashOffset property of the Canvas 2D API
+// sets the line dash pattern offset or "phase" to achieve a "marching ants" effect, for
+// example.
+// 设置虚线（setLineDash）开始的位置，默认是0
+func (r *implCanvasRenderingContext2D) LineDashOffset() float64 {
+	return r.v.Get("lineDashOffset").Float()
+}
+
+func (r *implCanvasRenderingContext2D) SetLineDashOffset(s float64) {
+	r.v.Set("lineDashOffset", s)
+}
+
+// The CanvasRenderingContext2D.lineJoin property of the Canvas 2D API
+// determines how two connecting segments (of lines, arcs or curves) with non-zero lengths
+// in a shape are joined together (degenerate segments with zero lengths, whose specified
+// endpoints and control points are exactly at the same position, are skipped).
+// 指定不平行的线连接处的形状：bevel（平）, round（圆）, miter（角），默认是miter
+func (r *implCanvasRenderingContext2D) LineJoin() string {
+	return r.v.Get("lineJoin").String()
+}
+
+func (r *implCanvasRenderingContext2D) SetLineJoin(s string) {
+	r.v.Set("lineJoin", s)
+}
+
+// The CanvasRenderingContext2D.lineWidth property of the Canvas 2D API sets the
+// thickness of lines in space units. When getting, it returns the current value (1.0 by
+// default). When setting, zero, negative, Infinity and NaN values are ignored; otherwise
+// the current value is set to the new value.
+// 设置线条宽度，小于等于0等不合法的值将忽略
+func (r *implCanvasRenderingContext2D) LineWidth() float64 {
+	return r.v.Get("lineWidth").Float()
+}
+
+func (r *implCanvasRenderingContext2D) SetLineWidth(s float64) {
+	r.v.Set("lineWidth", s)
 }
 
 func (r *implCanvasRenderingContext2D) BeginPath() {
