@@ -3,8 +3,8 @@
 package web
 
 import (
-	"syscall/js"
 	"log"
+	"syscall/js"
 )
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
@@ -401,6 +401,6 @@ func (r *implCanvasRenderingContext2D) Stroke(path ...string) {
 	if len(path) > 0 {
 		r.v.Call("stroke", path[0])
 	} else {
-		r.v.Call("stroke", )
+		r.v.Call("stroke")
 	}
 }

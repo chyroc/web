@@ -4,21 +4,23 @@ package web
 
 import "syscall/js"
 
-var Window *window
-
-func init() {
-	Window = new(window)
-	Window.v = js.Global.Get("window")
+type WindowInterface interface {
+	RequestAnimationFrame(callback js.Callback)
+	Alert(s string)
 }
 
-type window struct {
+type implWindow struct {
 	v js.Value
 }
 
-func (r *window) RequestAnimationFrame(callback js.Callback) {
+func newimplWindow() implWindow {
+	return implWindow{js.Global.Get("window")}
+}
+
+func (r *implWindow) RequestAnimationFrame(callback js.Callback) {
 	r.v.Call("requestAnimationFrame", callback)
 }
 
-func (r *window) Alert(s string) {
+func (r *implWindow) Alert(s string) {
 	r.v.Call("alert", s)
 }

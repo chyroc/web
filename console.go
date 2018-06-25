@@ -7,14 +7,6 @@ import (
 	"syscall/js"
 )
 
-var Console *console
-
-func init() {
-	Console = &console{
-		v: js.Global.Get("console"),
-	}
-}
-
 type console struct {
 	v js.Value
 }

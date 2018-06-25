@@ -7,29 +7,32 @@ import (
 	"syscall/js"
 )
 
-var Document *document
-
-func init() {
-	v := js.Global.Get("document")
-	Document = &document{
-		implEventTarget: newImplEventTarget(v),
-		v:               v,
-	}
+type DocumentInterface interface {
+	Location() Location
+	GetElementById(id string) HTMLElement
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Document
-type document struct {
+type implDocument struct {
 	implEventTarget
 
 	v js.Value
 }
 
-func (r *document) Location() Location {
+func newImplDocument() implDocument {
+	v := js.Global.Get("document")
+	return implDocument{
+		newImplEventTarget(v),
+		v,
+	}
+}
+
+func (r *implDocument) Location() Location {
 	t := newImplLocation(r.v.Get("location"))
 	return &t
 }
 
-func (r *document) GetElementById(id string) HTMLElement {
+func (r *implDocument) GetElementById(id string) HTMLElement {
 	v := r.v.Call("getElementById", id)
 
 	switch tagName := strings.ToUpper(v.Get("tagName").String()); tagName {
