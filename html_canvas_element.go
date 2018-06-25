@@ -19,10 +19,13 @@ type implHTMLCanvasElement struct {
 	implHTMLElement
 }
 
+func newImplHTMLCanvasElement(v js.Value) implHTMLCanvasElement {
+	return implHTMLCanvasElement{newImplHTMLElement(v),}
+}
+
 func newHTMLCanvasElement(v js.Value) HTMLCanvasElement {
-	return &implHTMLCanvasElement{
-		implHTMLElement: newImplHTMLElement(v),
-	}
+	d := newImplHTMLCanvasElement(v)
+	return &d
 }
 
 func (r *implHTMLCanvasElement) GetContext(contextID string) CanvasRenderingContext2D {

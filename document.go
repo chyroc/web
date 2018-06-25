@@ -42,6 +42,8 @@ func (r *implDocument) GetElementById(id string) HTMLElement {
 		return newHTMLCanvasElement(v)
 	case "img":
 		return newHTMLImageElement(v)
+	case "select":
+		return newHTMLSelectElement(v)
 	default:
 		t := newImplHTMLElement(v)
 		return &t

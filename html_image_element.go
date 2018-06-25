@@ -10,12 +10,15 @@ type HTMLImageElement interface {
 
 type implHTMLImageElement struct {
 	implHTMLElement
+
 	v js.Value
 }
 
+func newImplHTMLImageElement(v js.Value) implHTMLImageElement {
+	return implHTMLImageElement{newImplHTMLElement(v), v,}
+}
+
 func newHTMLImageElement(v js.Value) HTMLImageElement {
-	return &implHTMLImageElement{
-		newImplHTMLElement(v),
-		v,
-	}
+	d := newImplHTMLImageElement(v)
+	return &d
 }

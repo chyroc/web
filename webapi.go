@@ -1,8 +1,10 @@
 package web
 
-import "sync"
+import "syscall/js"
 
 func Wait() {
-	var wg = new(sync.WaitGroup)
-	wg.Wait()
+	js.Global.Get("document").Call("addEventListener", "resize", js.NewCallback(func(args []js.Value) {
+
+	}))
+	select {}
 }
