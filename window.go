@@ -5,16 +5,21 @@ package web
 import "syscall/js"
 
 type WindowInterface interface {
+	EventTarget
+
 	RequestAnimationFrame(callback js.Callback)
 	Alert(s string)
 }
 
 type implWindow struct {
+	implEventTarget
+
 	v js.Value
 }
 
 func newimplWindow() implWindow {
-	return implWindow{js.Global.Get("window")}
+	v := js.Global.Get("window")
+	return implWindow{newImplEventTarget(v), v}
 }
 
 func (r *implWindow) RequestAnimationFrame(callback js.Callback) {

@@ -8,6 +8,8 @@ import (
 )
 
 type DocumentInterface interface {
+	EventTarget
+
 	Location() Location
 	GetElementById(id string) HTMLElement
 }
@@ -35,9 +37,11 @@ func (r *implDocument) Location() Location {
 func (r *implDocument) GetElementById(id string) HTMLElement {
 	v := r.v.Call("getElementById", id)
 
-	switch tagName := strings.ToUpper(v.Get("tagName").String()); tagName {
-	case "CANVAS":
+	switch tagName := strings.ToLower(v.Get("tagName").String()); tagName {
+	case "canvas":
 		return newHTMLCanvasElement(v)
+	case "img":
+		return newHTMLImageElement(v)
 	default:
 		t := newImplHTMLElement(v)
 		return &t
