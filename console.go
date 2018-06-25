@@ -1,6 +1,6 @@
 // +build js,wasm
 
-package webapi
+package web
 
 import (
 	"fmt"
