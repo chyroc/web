@@ -22,7 +22,7 @@ type implDocument struct {
 }
 
 func newImplDocument() implDocument {
-	v := js.Global.Get("document")
+	v := js.Global().Get("document")
 	return implDocument{
 		newImplEventTarget(v),
 		v,

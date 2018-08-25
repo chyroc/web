@@ -18,7 +18,7 @@ type implWindow struct {
 }
 
 func newimplWindow() implWindow {
-	v := js.Global.Get("window")
+	v := js.Global().Get("window")
 	return implWindow{newImplEventTarget(v), v}
 }
 

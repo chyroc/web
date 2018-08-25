@@ -16,7 +16,7 @@ func init() {
 	Document = &d
 
 	// console
-	Console = &console{v: js.Global.Get("console")}
+	Console = &console{v: js.Global().Get("console")}
 
 	// window
 	w := newimplWindow()
